@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  proxy:
+    image: istio/proxyv2:1.8.2
+    entrypoint: ["/usr/local/bin/envoy", "-c", "/etc/envoy.yaml", "--service-cluster", "proxy", "-l", "debug"]
+    volumes:
+      - ./envoy.yaml:/etc/envoy.yaml
+    depends_on:
+      - web_service
+    ports:
+      - "8000:8000"
+
+  static_service:
+    image: nginx:alpine
+    volumes:
+      - ./data:/srv
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+
+  web_service:
+    image: solsson/http-echo
+    environment:
+      - PORT=9000
